@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	encoding="UTF-8">
+<html>
+<h:head>
+<h:link rel="shortcut icon" href="imagens/logo_med.ico" type="image/x-icon" />
+<ui:param name="controladorRepeticao" value="#{controladorRepeticao}" />
+	<f:facet name="first">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta http-equiv="Content-Type"
+			content="application/xhtml+xml; charset=UTF-8" />
+		<meta http-equiv="Cache-Control" content="no-cache, no-store" />
+		<meta http-equiv="Pragma" content="no-cache, no-store" />
+		<meta http-equiv="expires" content="-1" />
+		<meta http-equiv="Content-Language" content="pt-br" />
+		<meta name="robots" content="noindex,follow" />
+	</f:facet>
+</h:head>
+<h:body id="terminal" onload="">
+	<h:form id="formulario" prependId="false" acceptcharset="ISO-8859-1">
+		<div id="corpo" ondragstart="return false;" ondrop="return false;">
+			<div class="recuado" id="menu" style="display: block;">
+
+				<div id="boxLogo">
+					<img src="imagens/logo_med.png" id="imgLogo" onclick="javascript:startAudio();"/>
+				</div>
+				<div>
+					<img border="0" src="" id="relogio" style="position: fixed; top: 180px; left: 265px; width: 25%; display: none;"/>
+				</div>
+				<div>
+					<img src="imagens/lizard_esq.png" id="imgAvatar" style="position: fixed; top: 230px; left: 250px; width: 300px;"/>
+				</div>
+
+			</div>
+
+
+			<div id="externa" style="display: block;">
+				<div id="divNomeCliente">
+					<span id="spanNomeCliente"> <p:tab titleStyleClass="face"
+							rendered="true">
+							<p:fieldset legend="Bem-vindo!">
+								<h:outputText id="txtResposta" value="Você disse, #{controladorRepeticao.textoResposta}" />
+								<h:outputText id="bradCrumb" value=" - Pergunta - #{controladorRepeticao.numeroPergunta}"/><h:outputText id="bradCrumbFinal" value=" de 5"/>
+							</p:fieldset>
+							<p:fieldset legend="Resposta correta:">
+								<h:outputText id="txtMinhaResposta" value="#{controladorRepeticao.textoMinhaResposta}" />
+							</p:fieldset>
+						</p:tab>
+					</span>
+				</div>
+				<div id="principal">
+					<div id="scrollArea">
+						<div id="telaTransacional"
+							style="overflow: hidden; height: 15px; margin-top: 41px;">
+							<ul
+								style="padding-right: 7px; transition-property: transform; transform-origin: 0px 0px 0px; transform: translate(0px, 0px) translateZ(0px); padding-bottom: 0px;"
+								id="telaTransacionalLista">
+							</ul>
+							
+						</div>
+					</div>
+				</div>
+				<div id="soundIvona">
+					<audio id="audio" onended="javascript:iniciarAudicao();">
+						<source src="#{controladorRepeticao.urlSaudacao}" type="audio/mpeg"/>
+					</audio>
+					<audio id="audioPergunta" onended="javascript:iniciarAudicaoPergunta();">
+						<source src="" type="audio/mpeg" />
+					</audio>
+					<audio id="audioDespedida" onended="javascript:document.getElementById('comandoSair').click();">
+						<source src="#{controladorRepeticao.urlDespedida}" type="audio/mpeg"/>
+					</audio>
+				</div>
+				<script type="text/javascript">
+					function startAudio(){
+						var audioElement;
+						if(!audioElement) {
+	  						audioElement = document.getElementById('audio');
+							audioElement.play();						
+						}
+			     	}
+
+					var avatar = document.getElementById("imgAvatar")
+					avatar.src = "imagens/lizard_esq_dir_cabeca_boca.gif";
+					var relogio = document.getElementById("relogio");
+					relogio.src = "";
+					relogio.style.display = "none";
+					
+					function playPergunta() {
+						var segundaPergunta = document.getElementById('segundaPergunta');
+						var audioPergunta = document.getElementById('audioPergunta');
+						var audioStream = segundaPergunta.value;
+						if (!audioStream.lenght) {
+							audioPergunta.src = audioStream;
+						}
+						audioPergunta.play();
+						var avatar = document.getElementById("imgAvatar")
+						avatar.src = "imagens/lizard_esq_dir_cabeca_boca.gif";
+					}
+				</script>
+				<div id="voicer" style="position: fixed; top: 566px; left: 1px;">
+					<h:inputText id="textInVoice" value="#{controladorRepeticao.textoResposta}">
+						<p:ajax listener="#{controladorRepeticao.ajaxListener}" event="focus" update="segundaPergunta, txtResposta, bradCrumb, gameOver, urlDespedida, txtMinhaResposta" oncomplete="playPergunta();"/>
+					</h:inputText>
+					<h:inputText value="#{controladorRepeticao.urlPergunta}" id="segundaPergunta"/>
+					<h:inputText value="#{controladorRepeticao.urlDespedida}" id="urlDespedida"/>
+					<h:inputText value="#{controladorRepeticao.gameOver}" id="gameOver"/>
+					
+					<script type="text/javascript">
+						function iniciarAudicao(){
+							var avatar = document.getElementById("imgAvatar")
+							avatar.src = "imagens/lizard_wait_foot.gif";
+							var relogio = document.getElementById("relogio");
+							relogio.src = "imagens/relogio-bio.gif";
+							relogio.style.display = "block";
+							relogio.style.width = "60px";
+							var recognition = new webkitSpeechRecognition();
+							var textInVoice = document.getElementById("textInVoice");
+							recognition.continuous = true;
+							recognition.lang = "pt-BR";
+							recognition.start();
+							recognition.onend = function (event) {
+								if (textInVoice.value == "") {
+									textInVoice.value = "";
+								}
+								var avatar = document.getElementById("imgAvatar")
+								avatar.src = "imagens/lizard_wait_foot.gif";
+								var relogio = document.getElementById("relogio");
+								relogio.src = "";
+								relogio.style.display = "none";
+								textInVoice.focus();
+							}
+							
+							recognition.onresult = function (event) {
+								textInVoice.blur();
+								var texto = "";
+							  	for (var i=event.resultIndex; event.results.length > i; ++i) {
+							    	if (event.results[i].isFinal) {
+							    		texto += event.results[i][0].transcript;
+							    	}
+							  	}
+							  	textInVoice.value = texto;
+							}
+							setTimeout(function(){ recognition.stop(); }, 6000);
+						}
+
+						function iniciarAudicaoPergunta(){
+							var gameOver = document.getElementById("gameOver").value;
+							if (gameOver == "jogo") {
+								var avatar = document.getElementById("imgAvatar");
+								avatar.src = "imagens/lizard_wait_foot.gif";
+								var relogio = document.getElementById("relogio");
+								relogio.src = "imagens/relogio-bio.gif";
+								relogio.style.display = "block";
+								relogio.style.width = "60px";
+								var audioPergunta = document.getElementById('audioPergunta');
+								var audioStream = audioPergunta.src;
+								if (!audioStream.src) {
+									var recognition = new webkitSpeechRecognition();
+									var textInVoice = document.getElementById("textInVoice");
+									recognition.continuous = true;
+									recognition.start();
+									recognition.onend = function (event) {
+										if (textInVoice.value == "") {
+											textInVoice.value = "";
+										}
+										var avatar = document.getElementById("imgAvatar");
+										avatar.src = "imagens/lizard_wait_foot.gif";
+										var relogio = document.getElementById("relogio");
+										relogio.src = "";
+										relogio.style.display = "none";
+										textInVoice.focus();
+									}
+									
+									recognition.onresult = function (event) {
+										textInVoice.blur();
+										var texto = "";
+									  	for (var i=event.resultIndex; event.results.length > i; ++i) {
+									    	if (event.results[i].isFinal) {
+									    		texto += event.results[i][0].transcript;
+									    	}
+									  	}
+									  	textInVoice.value = texto;
+									}
+									setTimeout(function(){ recognition.stop(); }, 6000);
+								}
+							} else if (gameOver == "fimDeJogo") {
+								var avatar = document.getElementById("imgAvatar");
+								avatar.src = "imagens/lizard_ativo.png";
+								setTimeout(function(){
+									
+									var audioDespedida;
+									if(!audioDespedida) {
+										var urlDespedida = document.getElementById("urlDespedida");
+										audioDespedida = document.getElementById('audioDespedida');
+										audioDespedida.src = urlDespedida.value;
+									}
+									audioDespedida.play();
+								}
+								, 2000);
+							}
+						}
+
+					</script>
+				</div>
+			</div>
+			
+		</div>
+		<div id="boxFooter">
+			<div id="divBtnFooter"><span id="spanBtnFooter"><h:commandLink id="comandoSair" action="#{controladorRepeticao.terminarSessao()}" value="Sair" /></span></div>
+		</div>
+	</h:form>
+	<p:ajaxStatus />
+</h:body>
+</html>
+</f:view>

@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	encoding="UTF-8">
+<html>
+<h:head>
+<h:link rel="shortcut icon" href="imagens/logo_med.ico" type="image/x-icon" />
+<ui:param name="controladorJogo" value="#{controladorJogo}" />
+	<f:facet name="first">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta http-equiv="Content-Type"
+			content="application/xhtml+xml; charset=UTF-8" />
+		<meta http-equiv="Cache-Control" content="no-cache, no-store" />
+		<meta http-equiv="Pragma" content="no-cache, no-store" />
+		<meta http-equiv="expires" content="-1" />
+		<meta http-equiv="Content-Language" content="pt-br" />
+		<meta name="robots" content="noindex,follow" />
+	</f:facet>
+</h:head>
+<h:body id="terminal" onload="">
+	<h:form id="formulario" prependId="false" acceptcharset="ISO-8859-1">
+		<div id="corpo" ondragstart="return false;" ondrop="return false;">
+			<div class="recuado" id="menu" style="display: block;">
+
+				<div id="boxLogo">
+					<img src="imagens/logo_med.png" id="imgLogo"/>
+				</div>
+				<div>
+					<img border="0" src="" id="relogio" style="position: fixed; top: 180px; left: 265px; width: 25%; display: none;"/>
+				</div>			
+				
+			</div>
+
+
+			<div id="externa" style="display: block;">
+				<div id="divNomeCliente">
+					<span id="spanNomeCliente"> <p:tab titleStyleClass="face"
+							rendered="true">
+								<h:outputText id="txtResposta" value="Você disse, #{controladorJogo.textoResposta}" />
+								<h:outputText id="bradCrumb" value=" - Pergunta - #{controladorJogo.numeroPergunta}"/><h:outputText id="bradCrumbFinal" value=" de 5"/>
+								<h:outputText id="txtMinhaResposta" value="#{controladorJogo.textoMinhaResposta}" />
+						</p:tab>
+					</span>
+				</div>
+				<div id="soundIvona">
+					<audio id="audio">
+						<source src="#{controladorJogo.urlSaudacao}" type="audio/mpeg"/>
+					</audio>
+					<audio id="audioPergunta">
+						<source src="" type="audio/mpeg" />
+					</audio>
+					<audio id="audioDespedida" onended="javascript:document.getElementById('comandoSair').click();">
+						<source src="#{controladorJogo.urlDespedida}" type="audio/mpeg"/>
+					</audio>
+					<div>
+						<h:commandButton value="Iniciar Jogo" id="iniciarJogo" onclick="javascript:startAudio();" disabled="#{controladorJogo.isJogoIniciado()}">
+							<p:ajax listener="#{controladorJogo.ajaxListener}" event="click" update="segundaPergunta, txtResposta, bradCrumb, gameOver, urlDespedida, txtMinhaResposta, iniciarJogo, ouvirPergunta"/>
+						</h:commandButton>
+					</div>
+					<div>
+						<h:commandButton value="Prosseguir" id="ouvirPergunta" onclick="javascript:playPergunta();" disabled="#{controladorJogo.prosseguirDesligado}">
+							<p:ajax event="click" listener="#{controladorJogo.setGravadorDesligado(false)}" update="ouvirPergunta, gravarResposta, pararGravador"/>
+						</h:commandButton>
+					</div>
+					<div>
+						<h:commandButton value="Gravar resposta" id="gravarResposta" onclick="javascript:iniciarAudicaoPergunta();" disabled="#{controladorJogo.gravadorDesligado}">
+							<p:ajax event="click" listener="#{controladorJogo.setProsseguirDesligado(true)}" update="ouvirPergunta"/>
+						</h:commandButton>
+					</div>
+					<div>
+						<h:commandButton value="Parar gravador" id="pararGravador" onclick="javascript:pararAudicaoResposta();" disabled="#{controladorJogo.gravadorDesligado}">
+							<p:ajax event="click" listener="#{controladorJogo.setEnviarDesligado(false)}" update="enviarResposta"/>
+						</h:commandButton>
+					</div>
+					<div>
+						<h:commandButton value="Enviar Resposta" id="enviarResposta" disabled="#{controladorJogo.enviarDesligado}">
+							<p:ajax listener="#{controladorJogo.ajaxListener}" event="click" oncomplete="javascript:trigger_beep();" update="segundaPergunta, txtResposta, bradCrumb, gameOver, urlDespedida, txtMinhaResposta, ouvirPergunta, gravarResposta, pararGravador, enviarResposta"/>
+						</h:commandButton>
+					</div>
+					<div>
+						<h:commandLink id="comandoSair" action="#{controladorJogo.terminarSessao()}" value="Sair" />
+					</div>
+				</div>
+				<script>
+					
+					function trigger_beep() {
+						let sound = new Audio(
+								"data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");
+						sound.play();
+					}
+				</script>
+				<script type="text/javascript">
+					function startAudio(){
+						var audioElement;
+						if(!audioElement) {
+	  						audioElement = document.getElementById('audio');
+							audioElement.play();						
+						}
+			     	}
+
+					var relogio = document.getElementById("relogio");
+					relogio.src = "";
+					relogio.style.display = "none";
+					
+					function playPergunta() {
+						var segundaPergunta = document.getElementById('segundaPergunta');
+						var audioPergunta = document.getElementById('audioPergunta');
+						var audioStream = segundaPergunta.value;
+						if (!audioStream.lenght) {
+							audioPergunta.src = audioStream;
+						}
+						audioPergunta.play();
+					}
+				</script>
+				<div id="voicer" style="position: fixed; top: 566px; left: 1px;">
+					<h:inputText value="#{controladorJogo.textoResposta}" id="textInVoice">
+						<p:ajax listener="#{controladorJogo.textoInVoice}" event="blur" update="txtMinhaResposta"/>
+					</h:inputText>
+					<h:inputHidden value="#{controladorJogo.urlPergunta}" id="segundaPergunta"/>
+					<h:inputHidden value="#{controladorJogo.urlDespedida}" id="urlDespedida"/>
+					<h:inputHidden value="#{controladorJogo.gameOver}" id="gameOver"/>
+					
+					<script type="text/javascript">
+					var recognition = new webkitSpeechRecognition();
+					
+						function iniciarAudicaoPergunta(){
+							var gameOver = document.getElementById("gameOver").value;
+							if (gameOver == "jogo") {
+								var relogio = document.getElementById("relogio");
+								relogio.src = "imagens/relogio-bio.gif";
+								relogio.style.display = "block";
+								relogio.style.width = "60px";
+								var audioPergunta = document.getElementById('audioPergunta');
+								var audioStream = audioPergunta.src;
+								if (!audioStream.src) {
+									var textInVoice = document.getElementById("textInVoice");
+									recognition.continuous = true;
+									recognition.start();
+									recognition.onend = function (event) {
+										if (textInVoice.value == "") {
+											textInVoice.value = "";
+										}
+										var relogio = document.getElementById("relogio");
+										relogio.src = "";
+										relogio.style.display = "none";
+										textInVoice.focus();
+									}
+								}
+								recognition.onresult = function (event) {
+									textInVoice.blur();
+									var texto = "";
+								  	for (var i=event.resultIndex; event.results.length > i; ++i) {
+								    	if (event.results[i].isFinal) {
+								    		texto += event.results[i][0].transcript;
+								    	}
+								  	}
+								  	textInVoice.value = texto;
+								}
+							} else if (gameOver == "fimDeJogo") {
+								setTimeout(function(){
+									
+									var audioDespedida;
+									if(!audioDespedida) {
+										var urlDespedida = document.getElementById("urlDespedida");
+										audioDespedida = document.getElementById('audioDespedida');
+										audioDespedida.src = urlDespedida.value;
+									}
+									audioDespedida.play();
+								}
+								, 2000);
+							}
+						}
+						
+						function pararAudicaoResposta() {
+							recognition.stop();
+						}
+
+					</script>
+				</div>
+			</div>
+			
+		</div>
+		<div id="boxFooter">
+			<div id="divBtnFooter"><span id="spanBtnFooter"></span></div>
+		</div>
+	</h:form>
+	<p:ajaxStatus />
+</h:body>
+</html>
+</f:view>

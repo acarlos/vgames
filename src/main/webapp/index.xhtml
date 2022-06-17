@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	encoding="UTF-8">
+<html>
+<h:head>
+<h:link rel="shortcut icon" href="imagens/logo_med.ico" type="image/x-icon" />
+<ui:param name="controladorIndex" value="#{controladorIndex}" />
+	<f:facet name="first">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta http-equiv="Content-Type"
+			content="application/xhtml+xml; charset=UTF-8" />
+		<meta http-equiv="Cache-Control" content="no-cache, no-store" />
+		<meta http-equiv="Pragma" content="no-cache, no-store" />
+		<meta http-equiv="expires" content="-1" />
+		<meta http-equiv="Content-Language" content="pt-br" />
+		<meta name="robots" content="noindex,follow" />
+    	<title><h:outputText value="#{msg.welcomeTitle}" /></title>
+	</f:facet>
+</h:head>
+<h:body id="terminal">
+<f:loadBundle basename="application" var="msg" />
+<h3><h:outputText value="#{msg.welcomeHeading}" /></h3>
+<p><h:outputText value="#{msg.welcomeMessage}" /></p>
+	<div id="soundIvona">
+		<audio id="audio">
+			<source src="#{controladorIndex.urlAdvertencia}" type="audio/mpeg"/>
+		</audio>
+		<script type="text/javascript">
+			var audioElement;
+			if(!audioElement) {
+  				audioElement = document.getElementById('audio');
+			}
+			window.onload = function() {
+				audioElement.play();						
+	     	}
+		</script>
+	</div>
+</h:body>
+</html>
+</f:view>
